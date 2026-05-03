@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment files (keep secrets local)
+.env
+.env.local
+.env.*.local
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Uploaded thumbnails (stored locally, not in repo)
+backend/uploads/*
+!backend/uploads/.gitkeep
