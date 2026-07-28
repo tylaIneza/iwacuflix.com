@@ -36,7 +36,7 @@ export default function ContentRow({ title, items, watchMap, accent }: Props) {
       <div className="relative group/row">
         <button
           onClick={() => scroll('l')}
-          className="absolute left-1 top-1/2 -translate-y-6 z-20 w-8 h-8 glass rounded-full flex items-center justify-center text-white opacity-0 group-hover/row:opacity-100 hover:bg-white/20 transition-all shadow-xl"
+          className="hidden md:flex absolute left-1 top-1/2 -translate-y-6 z-20 w-8 h-8 glass rounded-full items-center justify-center text-white opacity-0 group-hover/row:opacity-100 hover:bg-white/20 transition-all shadow-xl"
         >
           <FiChevronLeft size={18} />
         </button>
@@ -53,7 +53,7 @@ export default function ContentRow({ title, items, watchMap, accent }: Props) {
 
         <button
           onClick={() => scroll('r')}
-          className="absolute right-1 top-1/2 -translate-y-6 z-20 w-8 h-8 glass rounded-full flex items-center justify-center text-white opacity-0 group-hover/row:opacity-100 hover:bg-white/20 transition-all shadow-xl"
+          className="hidden md:flex absolute right-1 top-1/2 -translate-y-6 z-20 w-8 h-8 glass rounded-full items-center justify-center text-white opacity-0 group-hover/row:opacity-100 hover:bg-white/20 transition-all shadow-xl"
         >
           <FiChevronRight size={18} />
         </button>

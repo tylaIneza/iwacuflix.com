@@ -77,7 +77,7 @@ export default function MyListPage() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
                 />
-                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                <div className="absolute inset-0 bg-black/50 opacity-0 md:group-hover:opacity-100 transition-opacity hidden md:flex items-center justify-center gap-3">
                   <Link
                     href={`/watch/${entry.id}`}
                     className="w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors shadow-xl"
@@ -91,6 +91,23 @@ export default function MyListPage() {
                     <FiTrash2 className="text-white" size={15} />
                   </button>
                 </div>
+
+                {/* Mobile: always-visible compact actions */}
+                <div className="md:hidden absolute bottom-2 right-2 flex items-center gap-1.5">
+                  <Link
+                    href={`/watch/${entry.id}`}
+                    className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-xl"
+                  >
+                    <FiPlay className="text-black ml-0.5" fill="black" size={13} />
+                  </Link>
+                  <button
+                    onClick={() => remove(entry.id)}
+                    className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center shadow-xl"
+                  >
+                    <FiTrash2 className="text-white" size={13} />
+                  </button>
+                </div>
+
                 <span className="absolute top-2 left-2 text-[9px] font-black uppercase bg-[#E50914] text-white px-1.5 py-0.5 rounded-sm">
                   {content!.type}
                 </span>

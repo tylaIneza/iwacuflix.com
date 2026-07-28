@@ -137,7 +137,7 @@ export default function UploadPage() {
         </Field>
 
         {/* Type + Category row */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Type" required>
             <select
               value={form.type} onChange={(e) => set('type', e.target.value as 'movie' | 'series')}
@@ -159,7 +159,7 @@ export default function UploadPage() {
 
         {/* Series fields */}
         {form.type === 'series' && (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Season" required>
               <input
                 type="number" min={1} value={form.season}

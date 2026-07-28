@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
-import { FiSearch, FiX, FiBookmark } from 'react-icons/fi';
+import { FiSearch, FiX, FiBookmark, FiMenu } from 'react-icons/fi';
 import { getWatchlist } from '@/lib/watchlist';
 
 interface Props { onSearch?: (q: string) => void }
@@ -18,6 +18,7 @@ export default function Navbar({ onSearch }: Props) {
   const pathname   = usePathname();
   const [scrolled, setScrolled]     = useState(false);
   const [searchOn, setSearchOn]     = useState(false);
+  const [menuOpen, setMenuOpen]     = useState(false);
   const [listCount,setListCount]    = useState(0);
   const inputRef   = useRef<HTMLInputElement>(null);
 
@@ -36,8 +37,10 @@ export default function Navbar({ onSearch }: Props) {
   }, []);
 
   useEffect(() => { if (searchOn) inputRef.current?.focus(); }, [searchOn]);
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
   const closeSearch = () => { setSearchOn(false); onSearch?.(''); };
+  const openSearch = () => { setMenuOpen(false); setSearchOn(true); };
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
@@ -46,7 +49,7 @@ export default function Navbar({ onSearch }: Props) {
       <div className="flex items-center justify-between px-4 md:px-10 py-3 md:py-4">
 
         {/* Logo — scrolling marquee with Bebas Neue */}
-        <div className="flex items-center gap-6 md:gap-8">
+        <div className={`${searchOn ? 'hidden' : 'flex'} md:flex items-center gap-6 md:gap-8`}>
           <Link
             href="/"
             className="logo-wrap overflow-hidden flex-shrink-0 block"
@@ -97,18 +100,18 @@ export default function Navbar({ onSearch }: Props) {
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-2 md:gap-3">
+        <div className={`flex items-center gap-2 md:gap-3 ${searchOn ? 'flex-1 md:flex-none' : ''}`}>
           {/* Search */}
           {onSearch && (
             searchOn ? (
-              <div className="flex items-center gap-2 glass px-3 py-2 rounded-lg">
+              <div className="flex items-center gap-2 glass px-3 py-2 rounded-lg flex-1 md:flex-none">
                 <FiSearch className="text-gray-400 flex-shrink-0" size={15} />
                 <input
                   ref={inputRef}
                   type="text"
                   placeholder="Search…"
                   onChange={(e) => onSearch(e.target.value)}
-                  className="bg-transparent text-white text-sm outline-none w-36 md:w-52 placeholder-gray-500"
+                  className="bg-transparent text-white text-sm outline-none w-full md:w-52 placeholder-gray-500"
                 />
                 <button onClick={closeSearch} className="text-gray-500 hover:text-white flex-shrink-0">
                   <FiX size={15} />
@@ -116,7 +119,7 @@ export default function Navbar({ onSearch }: Props) {
               </div>
             ) : (
               <button
-                onClick={() => setSearchOn(true)}
+                onClick={openSearch}
                 className="p-2 text-gray-400 hover:text-white transition-colors hover:bg-white/5 rounded-lg"
               >
                 <FiSearch size={19} />
@@ -125,14 +128,53 @@ export default function Navbar({ onSearch }: Props) {
           )}
 
           {/* My List icon (mobile) */}
-          <Link href="/list" className="md:hidden p-2 text-gray-400 hover:text-white relative">
-            <FiBookmark size={19} />
-            {listCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-[#E50914] rounded-full" />
-            )}
-          </Link>
+          {!searchOn && (
+            <Link href="/list" className="md:hidden p-2 text-gray-400 hover:text-white relative">
+              <FiBookmark size={19} />
+              {listCount > 0 && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-[#E50914] rounded-full" />
+              )}
+            </Link>
+          )}
+
+          {/* Hamburger (mobile) */}
+          {!searchOn && (
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="md:hidden p-2 text-gray-400 hover:text-white transition-colors hover:bg-white/5 rounded-lg"
+              aria-label="Toggle menu"
+            >
+              {menuOpen ? <FiX size={19} /> : <FiMenu size={19} />}
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Mobile nav dropdown */}
+      {menuOpen && (
+        <div className="md:hidden bg-[#0a0a0a]/98 backdrop-blur-md border-t border-white/10 px-4 py-3 flex flex-col gap-1">
+          {NAV.map(({ href, label }) => {
+            const active = label === 'Home' ? pathname === '/' : pathname === href;
+            return (
+              <Link
+                key={href} href={href}
+                className={`px-3 py-2.5 rounded-md text-sm font-medium transition-colors flex items-center justify-between ${
+                  active
+                    ? 'text-white bg-white/10'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {label}
+                {label === 'My List' && listCount > 0 && (
+                  <span className="bg-[#E50914] text-white text-[10px] rounded-full px-1.5 py-0.5 font-bold">
+                    {listCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </nav>
   );
 }

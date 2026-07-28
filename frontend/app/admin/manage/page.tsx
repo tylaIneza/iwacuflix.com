@@ -135,7 +135,7 @@ export default function ManagePage() {
         </button>
       </div>
 
-      {/* Table */}
+      {/* Content list */}
       {loading ? (
         <div className="flex justify-center py-20">
           <FiLoader className="animate-spin text-[#E50914]" size={30} />
@@ -145,7 +145,57 @@ export default function ManagePage() {
           No content found.
         </div>
       ) : (
-        <div className="border border-[#2a2a2a] rounded-xl overflow-x-auto">
+        <>
+          {/* Mobile: stacked cards */}
+          <div className="md:hidden space-y-3">
+            {filtered.map((c) => (
+              <div key={c._id} className="border border-[#2a2a2a] rounded-xl p-3 flex gap-3">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={c.thumbnail} alt="" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
+                  className="w-16 h-10 rounded object-cover bg-gray-800 flex-shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-medium truncate">{c.title}</p>
+                  <p className="text-gray-500 text-xs mt-0.5 capitalize">
+                    {c.type} · {c.category}
+                    {c.type === 'series' && c.season && c.episode ? ` · S${c.season}E${c.episode}` : ''}
+                  </p>
+                  <div className="flex items-center justify-between mt-2">
+                    <span className={`text-[11px] px-2 py-1 rounded-full font-semibold ${
+                      c.isPublished ? 'bg-green-500/15 text-green-400' : 'bg-yellow-500/15 text-yellow-400'
+                    }`}>
+                      {c.isPublished ? 'Published' : 'Draft'}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => handleTogglePublish(c._id)}
+                        title={c.isPublished ? 'Unpublish' : 'Publish'}
+                        className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+                      >
+                        {c.isPublished ? <FiEyeOff size={15} /> : <FiEye size={15} />}
+                      </button>
+                      <button
+                        onClick={() => setEditItem(c)}
+                        className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-blue-400 transition-colors"
+                      >
+                        <FiEdit2 size={15} />
+                      </button>
+                      <button
+                        onClick={() => setDelId(c._id)}
+                        className="p-1.5 rounded hover:bg-white/10 text-gray-400 hover:text-red-400 transition-colors"
+                      >
+                        <FiTrash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: table */}
+          <div className="hidden md:block border border-[#2a2a2a] rounded-xl overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-[#2a2a2a] text-gray-500 text-xs uppercase tracking-wide">
@@ -214,7 +264,8 @@ export default function ManagePage() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </>
       )}
 
       {/* Delete confirmation modal */}
@@ -261,7 +312,7 @@ export default function ManagePage() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-gray-500 text-xs uppercase tracking-wide block mb-1">Type</label>
                 <select
@@ -286,7 +337,7 @@ export default function ManagePage() {
             </div>
 
             {editItem.type === 'series' && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {(['season', 'episode'] as const).map((f) => (
                   <div key={f}>
                     <label className="text-gray-500 text-xs uppercase tracking-wide block mb-1">{f}</label>

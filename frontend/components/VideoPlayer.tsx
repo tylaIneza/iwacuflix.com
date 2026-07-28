@@ -1,7 +1,6 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect, useCallback } from 'react';
 import { saveWatchProgress } from '@/lib/auth';
-import { FiAlertTriangle } from 'react-icons/fi';
 
 interface Content {
   _id: string; title: string; thumbnail: string;
@@ -12,19 +11,6 @@ interface Props {
   content: Content;
   startTime?: number;
   onEnded?: () => void;
-}
-
-// ── Platform detector ─────────────────────────────────────
-function getPlatform(url: string) {
-  if (/youtu/i.test(url))            return { name: 'YouTube',          icon: '▶', color: '#FF0000' };
-  if (/vimeo/i.test(url))            return { name: 'Vimeo',            icon: '◆', color: '#1AB7EA' };
-  if (/cloudflare/i.test(url))       return { name: 'Cloudflare Stream',icon: '◈', color: '#F38020' };
-  if (/drive\.google/i.test(url))    return { name: 'Google Drive',     icon: '▲', color: '#4285F4' };
-  if (/dailymotion/i.test(url))      return { name: 'Dailymotion',      icon: '◉', color: '#0066DC' };
-  if (/ok\.ru/i.test(url))           return { name: 'OK.ru',            icon: '●', color: '#EE8208' };
-  if (/facebook/i.test(url))         return { name: 'Facebook',         icon: '▣', color: '#1877F2' };
-  if (/\.(mp4|webm|m3u8)/i.test(url)) return { name: 'Direct Video',   icon: '▶', color: '#E50914' };
-  return                               { name: 'Video',                 icon: '▶', color: '#E50914' };
 }
 
 // ── URL resolver ──────────────────────────────────────────
@@ -85,10 +71,10 @@ function resolveUrl(raw: string, startTime = 0): Resolved {
 }
 
 // ── Component ─────────────────────────────────────────────
+// No custom loading/error UI — the embedded source (Google Drive, YouTube, etc.)
+// renders its own player chrome, which is more reliable across devices.
 export default function VideoPlayer({ url, content, startTime = 0, onEnded }: Props) {
-  const videoRef   = useRef<HTMLVideoElement>(null);
-  const [ready,    setReady]    = useState(false);
-  const [errored,  setErrored]  = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const saveProgress = useCallback(() => {
     const v = videoRef.current;
@@ -105,131 +91,46 @@ export default function VideoPlayer({ url, content, startTime = 0, onEnded }: Pr
     return () => { clearInterval(iv); v.removeEventListener('ended', saveProgress); };
   }, [saveProgress, startTime]);
 
-  // Reset loading state when URL changes
-  useEffect(() => { setReady(false); setErrored(false); }, [url]);
-
   if (!url?.trim()) {
     return (
-      <PlayerShell>
-        <EmptyState />
-      </PlayerShell>
+      <div className="relative w-full rounded-2xl overflow-hidden bg-[#0d0d0d]" style={{ paddingBottom: '56.25%' }}>
+        <div className="absolute inset-0 flex items-center justify-center text-center">
+          <div>
+            <p className="text-4xl mb-3">🎬</p>
+            <p className="text-gray-500 text-sm">No video URL provided.</p>
+          </div>
+        </div>
+      </div>
     );
   }
 
   const { kind, src } = resolveUrl(url, startTime);
-  const platform       = getPlatform(url);
 
   return (
-    <div className="w-full">
-      {/* ── Player shell ─── */}
-      <div
-        className="relative w-full rounded-2xl overflow-hidden"
-        style={{
-          paddingBottom: '56.25%',
-          background: '#000',
-          boxShadow: `0 0 0 1px rgba(255,255,255,0.07), 0 24px 60px rgba(0,0,0,0.8), 0 0 40px ${platform.color}22`,
-        }}
-      >
-        {/* Loading overlay — shown until media fires onLoad / onCanPlay */}
-        {!ready && !errored && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-5 bg-black">
-            <div className="relative z-10 flex flex-col items-center gap-4">
-              {/* Triple-ring spinner */}
-              <div className="relative w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-2 border-white/5" />
-                <div
-                  className="absolute inset-0 rounded-full border-2 border-transparent animate-spin"
-                  style={{ borderTopColor: platform.color, animationDuration: '0.9s' }}
-                />
-                <div
-                  className="absolute inset-2 rounded-full border border-transparent animate-spin"
-                  style={{ borderTopColor: `${platform.color}80`, animationDuration: '1.4s', animationDirection: 'reverse' }}
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-base" style={{ color: platform.color }}>{platform.icon}</span>
-                </div>
-              </div>
-              <div className="text-center">
-                <p className="text-white text-sm font-semibold">{content.title}</p>
-                <p className="text-gray-500 text-xs mt-0.5">Loading from {platform.name}…</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Error state */}
-        {errored && (
-          <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-[#0d0d0d] px-6 text-center">
-            <FiAlertTriangle size={30} className="text-yellow-500" />
-            <p className="text-gray-300 text-sm font-semibold">Video couldn't load</p>
-            <p className="text-gray-500 text-xs max-w-xs leading-relaxed">
-              This site blocks embedding. Open the video page in your browser,
-              press <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white text-[10px]">F12</kbd> → Network tab → play the video → copy the <code className="text-[#E50914]">.mp4</code> or <code className="text-[#E50914]">m3u8</code> URL and paste it as the Video URL.
-            </p>
-          </div>
-        )}
-
-        {/* ── Iframe ── */}
-        {kind === 'iframe' && (() => {
-          // For YouTube: scale the iframe ~6% larger so overflow:hidden clips
-          // the top-right watermark and bottom-right logo without touching controls.
-          const isYT = src.includes('youtube.com') || src.includes('youtu.be');
-          const iframeStyle: React.CSSProperties = isYT
-            ? { position: 'absolute', top: '-5%', left: '-3%', width: '106%', height: '110%', border: 'none', opacity: ready ? 1 : 0, transition: 'opacity 0.7s' }
-            : { position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', opacity: ready ? 1 : 0, transition: 'opacity 0.7s' };
-
-          return (
-            <iframe
-              key={src}
-              src={src}
-              title={content.title}
-              style={iframeStyle}
-              allow="accelerometer; gyroscope; autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
-              allowFullScreen
-              referrerPolicy="strict-origin-when-cross-origin"
-              onLoad={() => setReady(true)}
-              onError={() => { setReady(true); setErrored(true); }}
-            />
-          );
-        })()}
-
-        {/* ── Native video ── */}
-        {kind === 'video' && (
-          <video
-            ref={videoRef}
-            key={src}
-            src={src}
-            controls
-            autoPlay
-            playsInline
-            className="absolute inset-0 w-full h-full object-contain transition-opacity duration-700"
-            style={{ opacity: ready ? 1 : 0, background: '#000' }}
-            onCanPlay={() => setReady(true)}
-            onError={() => { setReady(true); setErrored(true); }}
-            onEnded={() => { saveProgress(); onEnded?.(); }}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function PlayerShell({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      className="relative w-full rounded-2xl overflow-hidden"
-      style={{ paddingBottom: '56.25%', background: '#0d0d0d', boxShadow: '0 0 0 1px rgba(255,255,255,0.07)' }}
-    >
-      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="text-center">
-      <p className="text-4xl mb-3">🎬</p>
-      <p className="text-gray-500 text-sm">No video URL provided.</p>
+    <div className="relative w-full rounded-2xl overflow-hidden bg-black" style={{ paddingBottom: '56.25%' }}>
+      {kind === 'iframe' ? (
+        <iframe
+          key={src}
+          src={src}
+          title={content.title}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none' }}
+          allow="accelerometer; gyroscope; autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen"
+          allowFullScreen
+          referrerPolicy="strict-origin-when-cross-origin"
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          key={src}
+          src={src}
+          controls
+          autoPlay
+          playsInline
+          className="absolute inset-0 w-full h-full object-contain"
+          style={{ background: '#000' }}
+          onEnded={() => { saveProgress(); onEnded?.(); }}
+        />
+      )}
     </div>
   );
 }

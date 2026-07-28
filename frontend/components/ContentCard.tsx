@@ -26,7 +26,6 @@ interface Props {
 export default function ContentCard({ content, progress }: Props) {
   const [imgErr,  setImgErr]  = useState(false);
   const [inList,  setInList]  = useState(false);
-  const [hovered, setHovered] = useState(false);
 
   useEffect(() => {
     setInList(isInWatchlist(content._id));
@@ -57,8 +56,6 @@ export default function ContentCard({ content, progress }: Props) {
     <Link
       href={`/watch/${content._id}`}
       className="block flex-shrink-0 w-40 md:w-48 card-scale group"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       {/* Thumbnail */}
       <div className="relative aspect-video rounded-xl overflow-hidden bg-[#1a1a1a]">
@@ -95,11 +92,11 @@ export default function ContentCard({ content, progress }: Props) {
           </span>
         </div>
 
-        {/* Watchlist button — top right */}
+        {/* Watchlist button — top right. Always visible on touch/mobile; hover-reveal on desktop. */}
         <button
           onClick={handleList}
-          className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300
-            ${hovered ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}
+          className={`absolute top-2 right-2 w-8 h-8 md:w-7 md:h-7 rounded-full flex items-center justify-center transition-all duration-300
+            opacity-100 scale-100 md:opacity-0 md:scale-75 md:group-hover:opacity-100 md:group-hover:scale-100
             ${inList ? 'bg-green-500 text-white' : 'bg-black/60 backdrop-blur-sm text-white hover:bg-white/20'}
           `}
           title={inList ? 'Remove from list' : 'Add to list'}
