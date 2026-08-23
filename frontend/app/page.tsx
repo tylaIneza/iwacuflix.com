@@ -2,6 +2,7 @@
 import { Suspense, useEffect, useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
 import ContentRow from '@/components/ContentGrid';
 import ContentCard from '@/components/ContentCard';
@@ -229,10 +230,7 @@ function HomeContent() {
         )}
       </div>
 
-      <footer className="border-t border-white/5 py-10 text-center">
-        <p className="font-bebas text-3xl mb-2" style={{ color: '#E50914', letterSpacing: '0.15em' }}>IWACUFLIX</p>
-        <p className="text-gray-700 text-xs">© {new Date().getFullYear()} Iwacuflix. All rights reserved.</p>
-      </footer>
+      <Footer />
     </>
   );
 }

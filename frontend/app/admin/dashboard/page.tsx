@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { adminFetchStats, adminFetchContent } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 import { Content } from '@/components/ContentCard';
-import { FiFilm, FiTv, FiEye, FiEyeOff, FiUpload, FiLoader } from 'react-icons/fi';
+import { FiFilm, FiTv, FiEye, FiEyeOff, FiUpload, FiLoader, FiMail } from 'react-icons/fi';
 
 interface Stats {
   total: number;
@@ -12,6 +12,7 @@ interface Stats {
   series: number;
   published: number;
   unpublished: number;
+  unreadMessages: number;
 }
 
 export default function DashboardPage() {
@@ -39,11 +40,12 @@ export default function DashboardPage() {
   }
 
   const cards = [
-    { label: 'Total Content', value: stats?.total ?? 0,       icon: FiFilm,   color: 'bg-blue-500/10 text-blue-400 border-blue-500/20' },
-    { label: 'Movies',        value: stats?.movies ?? 0,      icon: FiFilm,   color: 'bg-purple-500/10 text-purple-400 border-purple-500/20' },
-    { label: 'Series',        value: stats?.series ?? 0,      icon: FiTv,     color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20' },
-    { label: 'Published',     value: stats?.published ?? 0,   icon: FiEye,    color: 'bg-green-500/10 text-green-400 border-green-500/20' },
-    { label: 'Unpublished',   value: stats?.unpublished ?? 0, icon: FiEyeOff, color: 'bg-red-500/10 text-red-400 border-red-500/20' },
+    { label: 'Total Content', value: stats?.total ?? 0,          icon: FiFilm,   color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',   href: '/admin/manage' },
+    { label: 'Movies',        value: stats?.movies ?? 0,         icon: FiFilm,   color: 'bg-purple-500/10 text-purple-400 border-purple-500/20', href: '/admin/manage' },
+    { label: 'Series',        value: stats?.series ?? 0,         icon: FiTv,     color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20', href: '/admin/manage' },
+    { label: 'Published',     value: stats?.published ?? 0,      icon: FiEye,    color: 'bg-green-500/10 text-green-400 border-green-500/20', href: '/admin/manage' },
+    { label: 'Unpublished',   value: stats?.unpublished ?? 0,    icon: FiEyeOff, color: 'bg-red-500/10 text-red-400 border-red-500/20',       href: '/admin/manage' },
+    { label: 'Unread Messages', value: stats?.unreadMessages ?? 0, icon: FiMail, color: 'bg-pink-500/10 text-pink-400 border-pink-500/20',    href: '/admin/messages' },
   ];
 
   return (
@@ -62,13 +64,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-10">
-        {cards.map(({ label, value, icon: Icon, color }) => (
-          <div key={label} className={`border rounded-xl p-4 ${color}`}>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+        {cards.map(({ label, value, icon: Icon, color, href }) => (
+          <Link key={label} href={href} className={`border rounded-xl p-4 transition-transform hover:-translate-y-0.5 ${color}`}>
             <Icon size={22} className="mb-2" />
             <p className="text-2xl font-black text-white">{value}</p>
             <p className="text-xs mt-0.5 opacity-80">{label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 

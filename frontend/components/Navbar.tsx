@@ -14,6 +14,11 @@ const NAV = [
   { href: '/list',    label: 'My List' },
 ];
 
+const INFO_NAV = [
+  { href: '/about-us',   label: 'About' },
+  { href: '/contact-us', label: 'Contact' },
+];
+
 export default function Navbar({ onSearch }: Props) {
   const pathname   = usePathname();
   const [scrolled, setScrolled]     = useState(false);
@@ -96,6 +101,22 @@ export default function Navbar({ onSearch }: Props) {
                 </Link>
               );
             })}
+
+            {/* Info links — separated so they read as secondary to content browsing */}
+            <div className="hidden lg:flex items-center gap-1 ml-2 pl-2 border-l border-white/10">
+              {INFO_NAV.map(({ href, label }) => (
+                <Link
+                  key={href} href={href}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                    pathname === href
+                      ? 'text-white bg-white/10'
+                      : 'text-gray-500 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  {label}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -173,6 +194,21 @@ export default function Navbar({ onSearch }: Props) {
               </Link>
             );
           })}
+
+          <div className="mt-1 pt-2 border-t border-white/10 flex flex-col gap-1">
+            {INFO_NAV.map(({ href, label }) => (
+              <Link
+                key={href} href={href}
+                className={`px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${
+                  pathname === href
+                    ? 'text-white bg-white/10'
+                    : 'text-gray-500 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       )}
     </nav>

@@ -2,6 +2,7 @@ const express = require('express');
 const path    = require('path');
 const multer  = require('multer');
 const Content = require('../models/Content');
+const Message = require('../models/Message');
 
 const router = express.Router();
 
@@ -29,13 +30,14 @@ router.post('/upload', upload.single('thumbnail'), (req, res) => {
 // Dashboard stats
 router.get('/stats', async (req, res) => {
   try {
-    const [total, movies, series, published] = await Promise.all([
+    const [total, movies, series, published, unreadMessages] = await Promise.all([
       Content.count(),
       Content.count({ type: 'movie' }),
       Content.count({ type: 'series' }),
       Content.count({ isPublished: true }),
+      Message.countUnread(),
     ]);
-    res.json({ total, movies, series, published, unpublished: total - published });
+    res.json({ total, movies, series, published, unpublished: total - published, unreadMessages });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
   }
@@ -97,6 +99,60 @@ router.delete('/content/:id', async (req, res) => {
   try {
     const deleted = await Content.delete(req.params.id);
     if (!deleted) return res.status(404).json({ message: 'Content not found' });
+    res.json({ message: 'Deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ── Contact messages ────────────────────────────────────────
+
+// List messages (filterable by status/category/search)
+router.get('/messages', async (req, res) => {
+  try {
+    const { status, category, search } = req.query;
+    const items = await Message.findAll({
+      ...(status   && { status }),
+      ...(category && { category }),
+      ...(search   && { search }),
+    });
+    res.json(items);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get single message
+router.get('/messages/:id', async (req, res) => {
+  try {
+    const item = await Message.findById(req.params.id);
+    if (!item) return res.status(404).json({ message: 'Message not found' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Mark read/unread
+router.put('/messages/:id/status', async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (!['read', 'unread'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+    const item = await Message.setStatus(req.params.id, status);
+    if (!item) return res.status(404).json({ message: 'Message not found' });
+    res.json(item);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete message
+router.delete('/messages/:id', async (req, res) => {
+  try {
+    const deleted = await Message.delete(req.params.id);
+    if (!deleted) return res.status(404).json({ message: 'Message not found' });
     res.json({ message: 'Deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { getWatchlist, removeFromWatchlist, WatchlistItem } from '@/lib/watchlist';
 import { fetchContent } from '@/lib/api';
 import { Content } from '@/components/ContentCard';
@@ -125,6 +126,8 @@ export default function MyListPage() {
           ))}
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 }

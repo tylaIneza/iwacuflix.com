@@ -48,3 +48,41 @@ export const adminUploadThumbnail = (token: string, file: File) => {
     .post('/api/admin/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
     .then((r) => r.data);
 };
+
+// ── Contact ────────────────────────────────────────────────
+export interface ContactPayload {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  category: 'general' | 'copyright' | 'business';
+  website?: string; // honeypot — must stay empty
+}
+
+export const submitContact = (data: ContactPayload) =>
+  api.post('/api/contact', data).then((r) => r.data);
+
+// ── Admin: Messages ──────────────────────────────────────────
+export interface ContactMessage {
+  _id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  category: 'general' | 'copyright' | 'business';
+  status: 'unread' | 'read';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const adminFetchMessages = (token: string, params?: Record<string, string>) =>
+  adminApi(token).get('/api/admin/messages', { params }).then((r) => r.data);
+
+export const adminFetchMessageById = (token: string, id: string) =>
+  adminApi(token).get(`/api/admin/messages/${id}`).then((r) => r.data);
+
+export const adminSetMessageStatus = (token: string, id: string, status: 'read' | 'unread') =>
+  adminApi(token).put(`/api/admin/messages/${id}/status`, { status }).then((r) => r.data);
+
+export const adminDeleteMessage = (token: string, id: string) =>
+  adminApi(token).delete(`/api/admin/messages/${id}`).then((r) => r.data);

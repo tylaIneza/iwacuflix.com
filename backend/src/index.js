@@ -7,6 +7,7 @@ const mysql      = require('mysql2/promise');
 const authRoutes    = require('./routes/auth');
 const contentRoutes = require('./routes/content');
 const adminRoutes   = require('./routes/admin');
+const contactRoutes = require('./routes/contact');
 const requireAuth   = require('./middleware/auth');
 
 const app = express();
@@ -18,6 +19,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use('/api/auth',    authRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/admin',   requireAuth, adminRoutes);
 app.get('/api/health',  (req, res) => res.json({ status: 'ok', service: 'Iwacuflix API (MySQL)' }));
 
@@ -70,6 +72,21 @@ async function bootstrap() {
       INDEX idx_published (isPublished),
       INDEX idx_type      (type),
       INDEX idx_category  (category)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS messages (
+      id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      name        VARCHAR(150) NOT NULL,
+      email       VARCHAR(255) NOT NULL,
+      subject     VARCHAR(200) NOT NULL,
+      message     TEXT         NOT NULL,
+      category    ENUM('general','copyright','business') NOT NULL DEFAULT 'general',
+      status      ENUM('unread','read') NOT NULL DEFAULT 'unread',
+      createdAt   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
+      updatedAt   TIMESTAMP    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      INDEX idx_status   (status),
+      INDEX idx_category (category)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
   console.log('✅ Tables ready');

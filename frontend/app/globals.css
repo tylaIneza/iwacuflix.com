@@ -141,3 +141,50 @@ body {
   color: #fff;
   border-bottom: 2px solid #E50914;
 }
+
+/* ── Long-form policy page typography (About/Privacy/Terms/DMCA) ── */
+.legal-prose h2 {
+  color: #fff;
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  scroll-margin-top: 6rem;
+}
+.legal-prose h2:first-child { margin-top: 0; }
+.legal-prose h3 {
+  color: #e5e5e5;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.legal-prose p {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+.legal-prose ul, .legal-prose ol {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  line-height: 1.75;
+  margin-bottom: 1rem;
+  padding-left: 1.25rem;
+}
+.legal-prose ul { list-style: disc; }
+.legal-prose ol { list-style: decimal; }
+.legal-prose li { margin-bottom: 0.35rem; }
+.legal-prose strong { color: #e5e5e5; font-weight: 700; }
+.legal-prose a {
+  color: #ff4550;
+  text-underline-offset: 2px;
+  text-decoration: underline;
+}
+.legal-prose a:hover { color: #ff6a72; }
+.legal-prose a:focus-visible,
+.legal-prose button:focus-visible {
+  outline: 2px solid #E50914;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
