@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import HeroBanner from '@/components/HeroBanner';
+import AdUnit from '@/components/AdUnit';
 import ContentRow from '@/components/ContentGrid';
 import ContentCard from '@/components/ContentCard';
 import { SkeletonHero, SkeletonRow } from '@/components/SkeletonLoader';
@@ -153,6 +154,11 @@ function HomeContent() {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Ad */}
+      <div className="px-4 md:px-10 pt-6">
+        <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME} />
       </div>
 
       {/* Content */}

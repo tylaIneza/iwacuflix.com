@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import VideoPlayer from '@/components/VideoPlayer';
+import AdUnit from '@/components/AdUnit';
 import ContentCard from '@/components/ContentCard';
 import { Content } from '@/components/ContentCard';
 import { fetchContentById, fetchContent } from '@/lib/api';
@@ -213,6 +214,11 @@ export default function WatchPage() {
                   {copied ? 'Link Copied!' : 'Share'}
                 </button>
               </div>
+            </div>
+
+            {/* Ad */}
+            <div className="mt-8 fade-up">
+              <AdUnit slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_WATCH} />
             </div>
 
             {/* Episode list for series */}
